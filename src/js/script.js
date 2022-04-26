@@ -1,6 +1,6 @@
 /* variables */
 
-let queue = [];
+let resultString = "";
 let input = 0;
 
 const resultContainer = document.querySelector("#result");
@@ -14,77 +14,52 @@ function calculateQueue(value) {
         addToQueue(input);
     }
 
-    let result = value[0];
-    let dividedByZero = 0;
-
-    for (let i = 2; i < value.length; i = i + 2) {
-        switch (queue[i - 1]) {
-            case '+':
-                result += value[i];
-                break;
-            case '-':
-                result -= value[i];
-                break;
-            case '/':
-                if (value[i] === 0) dividedByZero = 1;
-                else result = result / value[i];
-                break;
-            case '*': result = result * value[i];
-                break;
-            case '%': result = result % value[i];
-                break;
-            case '±': value[i] = value[i] * -1;
-                break;
-        }
-    }
+    let result = eval(resultString);
 
     result = Math.round((result.toFixed(10)) * 100) / 100;
     result = parseFloat(result);
 
-    if (dividedByZero === 1) {
-        clearAll();
-        resultContainer.innerHTML = "ERROR";
-    } else {
-        resultContainer.innerHTML = result;
-        input = result;
-        queue = [];
-    }
+    resultContainer.innerHTML = result;
+    input = parseFloat(result);;
+    resultString = "";
 }
 
 function addToQueue(input) {
-    queue.push(input);
+    resultString += input;
 }
 
 function clearAll() {
-    queue = [];
+    resultString = "";
     input = 0;
     resultContainer.innerHTML = "0";
 }
 
 function changeSign() {
-    input *= -1;
-    resultContainer.innerHTML = queue.join('') + input;
+
+    if (resultContainer.innerHTML[0] === "-") resultString = resultContainer.innerHTML.substring(1);
+    else resultString = '-' + resultContainer.innerHTML;
+    resultContainer.innerHTML = resultString;
 }
 
 function numericButton(arg) {
-    if (resultContainer.innerHTML === "ERROR" || (resultContainer.innerHTML == "0" && arg != ".")) resultContainer.innerHTML = "";
+    if (resultContainer.innerHTML === "Error" || resultContainer.innerHTML === "Infinity" || (resultContainer.innerHTML == "0" && arg != ".")) resultContainer.innerHTML = "";
 
     if (!(arg === ".") || !input.match(/[.]/)) {
-        input += arg;
+        input += parseFloat(arg);
         resultContainer.innerHTML += arg;
     }
 }
 
 function operatorButton(arg) {
-    if (input !== 0 && input !== "-") {
+    if (input !== 0 && input !== "-" && input !== "±") {
         input = parseFloat(input);
-        addToQueue(input);
-        addToQueue(arg);
+        resultString += input;
+        resultString += arg;
         resultContainer.innerHTML += arg;
         input = 0;
     }
 
-    if (arg == "-" && isNaN(queue[0]) && input !== "-") {
+    if (arg == "-" && isNaN(resultString.substring(0, 1)) && input !== "-" && input !== "±") {
         input = "-";
 
         resultContainer.innerHTML = "-";
